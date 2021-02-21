@@ -9,16 +9,15 @@ module uart_rx(
     reg [25:0] counter;
     reg prev;
 
-    always @(posedge FPGA_CLK) begin
-        if (!UART_RXD && prev) begin
+    always @(posedge FPGA_CLK, negedge UART_RXD) begin
+        if (!UART_RXD) begin
             state <= 1'b0;
-            counter <= counter + 1;
-        end else if (counter >= 50_000_000) begin
             counter <= 0;
+        end else if (counter >= 50_000_000) begin
             state <= 1'b1;
+            counter <= 0;
         end else
             counter <= counter + 1;
-        prev <= UART_RXD;
     end
 
     assign LED1 = KEY1;
