@@ -1,0 +1,10 @@
+01000000
+3 cycles is 867
+01111110
+8 cycles is 3035
+
+289?
+
+433?
+
+wow I was actually count posedge, but it works out because the examples I chose only had two humps
