@@ -33,24 +33,24 @@ module uart_rx(
 
     reg [15:0] time_passed;
 
-    svnseg_controller controller(
-        .clk(FPGA_CLK),
-        .num3(time_passed[15:12]),
-        .num2(time_passed[11:8]),
-        .num1(time_passed[7:4]),
-        .num0(time_passed[3:0]),
-        .dig1(SVNSEG_DIG1),
-        .dig2(SVNSEG_DIG2),
-        .dig3(SVNSEG_DIG3),
-        .dig4(SVNSEG_DIG4),
-        .seg0(SVNSEG_SEG0),
-        .seg1(SVNSEG_SEG1),
-        .seg2(SVNSEG_SEG2),
-        .seg3(SVNSEG_SEG3),
-        .seg4(SVNSEG_SEG4),
-        .seg5(SVNSEG_SEG5),
-        .seg6(SVNSEG_SEG6),
-        .seg7(SVNSEG_SEG7));
+    // svnseg_controller controller(
+    //     .clk(FPGA_CLK),
+    //     .num3(time_passed[15:12]),
+    //     .num2(time_passed[11:8]),
+    //     .num1(time_passed[7:4]),
+    //     .num0(time_passed[3:0]),
+    //     .dig1(SVNSEG_DIG1),
+    //     .dig2(SVNSEG_DIG2),
+    //     .dig3(SVNSEG_DIG3),
+    //     .dig4(SVNSEG_DIG4),
+    //     .seg0(SVNSEG_SEG0),
+    //     .seg1(SVNSEG_SEG1),
+    //     .seg2(SVNSEG_SEG2),
+    //     .seg3(SVNSEG_SEG3),
+    //     .seg4(SVNSEG_SEG4),
+    //     .seg5(SVNSEG_SEG5),
+    //     .seg6(SVNSEG_SEG6),
+    //     .seg7(SVNSEG_SEG7));
 
     reg prev;
     reg counting;
@@ -64,5 +64,33 @@ module uart_rx(
         end
         prev <= UART_RXD;
     end
+
+    reg valid;
+    reg [7:0] data_byte;
+
+    uart_receiver rx(
+        .clk(FPGA_CLK),
+        .uart_rxd(UART_RXD),
+        .data_valid(valid),
+        .data(data_byte));
+
+    svnseg_controller controller(
+        .clk(FPGA_CLK),
+        .num3(4'h0),
+        .num2(4'h0),
+        .num1(data_byte[7:4]),
+        .num0(data_byte[3:0]),
+        .dig1(SVNSEG_DIG1),
+        .dig2(SVNSEG_DIG2),
+        .dig3(SVNSEG_DIG3),
+        .dig4(SVNSEG_DIG4),
+        .seg0(SVNSEG_SEG0),
+        .seg1(SVNSEG_SEG1),
+        .seg2(SVNSEG_SEG2),
+        .seg3(SVNSEG_SEG3),
+        .seg4(SVNSEG_SEG4),
+        .seg5(SVNSEG_SEG5),
+        .seg6(SVNSEG_SEG6),
+        .seg7(SVNSEG_SEG7));
 
 endmodule
