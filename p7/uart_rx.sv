@@ -16,24 +16,53 @@ module uart_rx(
     output SVNSEG_SEG4,
     output SVNSEG_SEG5,
     output SVNSEG_SEG6,
-    output SVNSEG_SEG7);
+    output SVNSEG_SEG7,
+    output LED1,
+    output LED2,
+    output LED3,
+    output LED4);
 
-    wire data_valid;
-    wire [7:0] data_byte;
-    wire [6:0] svnseg;
+    reg [3:0] count = 0;
 
-    uart_receiver uart_rx_inst(
+    always @(negedge UART_RXD) begin
+        count <= count + 1;
+    end
+
+    assign {LED1, LED2, LED3, LED4} = ~count;
+
+
+    reg [15:0] time_passed;
+
+    svnseg_controller controller(
         .clk(FPGA_CLK),
-        .uart_rxd(UART_RXD),
-        .data_valid(data_valid),
-        .data(data_byte));
+        .num3(time_passed[15:12]),
+        .num2(time_passed[11:8]),
+        .num1(time_passed[7:4]),
+        .num0(time_passed[3:0]),
+        .dig1(SVNSEG_DIG1),
+        .dig2(SVNSEG_DIG2),
+        .dig3(SVNSEG_DIG3),
+        .dig4(SVNSEG_DIG4),
+        .seg0(SVNSEG_SEG0),
+        .seg1(SVNSEG_SEG1),
+        .seg2(SVNSEG_SEG2),
+        .seg3(SVNSEG_SEG3),
+        .seg4(SVNSEG_SEG4),
+        .seg5(SVNSEG_SEG5),
+        .seg6(SVNSEG_SEG6),
+        .seg7(SVNSEG_SEG7));
 
-    num_to_7seg svnseg_inst(
-        .in(data_byte[3:0]),
-        .out(svnseg));
+    reg prev;
+    reg counting;
 
-    assign {SVNSEG_DIG4, SVNSEG_DIG3, SVNSEG_DIG2, SVNSEG_DIG1} = 4'b1110;
-    assign {SVNSEG_SEG0, SVNSEG_SEG1, SVNSEG_SEG2, SVNSEG_SEG3, SVNSEG_SEG4, SVNSEG_SEG5, SVNSEG_SEG6} = svnseg;
-    assign {SVNSEG_SEG7} = 1'b1; // no decimal point
+    always @(posedge FPGA_CLK) begin
+        if (!UART_RXD && prev) begin
+            counting <= !counting;
+        end
+        if (counting) begin
+            time_passed <= time_passed + 1;
+        end
+        prev <= UART_RXD;
+    end
 
 endmodule

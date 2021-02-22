@@ -8,7 +8,7 @@ module uart_receiver(
     output reg data_valid,
     output [7:0] data);
 
-    parameter CLKS_PER_BIT = 454_546; // 50 MHz clock, 110 baud rate
+    parameter CLKS_PER_BIT = 454_545; // 50 MHz clock, 110 baud rate
     parameter IDLE = 0, START_BIT = 1, DATA_BITS = 2, STOP_BIT = 3, CLEANUP = 4;
 
     reg [2:0] state = IDLE;

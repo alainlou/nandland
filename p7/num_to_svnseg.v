@@ -1,4 +1,4 @@
-module num_to_7seg(
+module num_to_svnseg(
     input [3:0] in,
     output [6:0] out);
 
