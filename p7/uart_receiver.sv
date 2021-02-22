@@ -12,7 +12,7 @@ module uart_receiver(
     parameter IDLE = 0, START = 1, SAMPLING = 2;
 
     reg [2:0] state = IDLE;
-    reg [3:0] bit_index = 7;
+    reg [3:0] bit_index = 0;
     reg [8:0] counter = 0;
 
     reg prev;
@@ -41,10 +41,10 @@ module uart_receiver(
                 end else begin
                     if (bit_index < 8) begin
                         data[bit_index] <= uart_rxd;
-                        bit_index <= bit_index - 1;
+                        bit_index <= bit_index + 1;
                         state <= SAMPLING;
                     end else begin
-                        bit_index <= 7;
+                        bit_index <= 0;
                         state <= IDLE;
                     end
                     counter <= 0;

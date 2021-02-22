@@ -70,7 +70,7 @@ module uart_rx(
 
     uart_receiver rx(
         .clk(FPGA_CLK),
-        .uart_rxd(UART_RXD),
+        .uart_rxd(!UART_RXD),
         .data_valid(valid),
         .data(data_byte));
 
