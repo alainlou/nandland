@@ -1,57 +1,58 @@
-/*
- * Note to self: we are using CLKS_PER_BIT-1 because it took one clock period to transition to the new state
- */
-
 module uart_receiver(
-    input clk,
-    input uart_rxd,
-    output reg data_valid,
-    output reg [7:0] data);
+    input FPGA_CLK,
+    input UART_RXD,
+    output SVNSEG_DIG1,
+    output SVNSEG_DIG2,
+    output SVNSEG_DIG3,
+    output SVNSEG_DIG4,
+    output SVNSEG_SEG0,
+    output SVNSEG_SEG1,
+    output SVNSEG_SEG2,
+    output SVNSEG_SEG3,
+    output SVNSEG_SEG4,
+    output SVNSEG_SEG5,
+    output SVNSEG_SEG6,
+    output SVNSEG_SEG7,
+    output LED1,
+    output LED2,
+    output LED3,
+    output LED4);
 
-    parameter CLKS_PER_BIT = 433; // 50 MHz clock, 115 200 baud rate, 433 is experimental
-    parameter IDLE = 0, START = 1, SAMPLING = 2;
+    wire rx = !UART_RXD;
+    reg [3:0] count = 0;
 
-    reg [2:0] state = IDLE;
-    reg [3:0] bit_index = 0;
-    reg [8:0] counter = 0;
-
-    reg prev;
-
-    always @(posedge clk) begin
-        case (state)
-            IDLE: begin
-                if (uart_rxd == 1'b0 && prev)
-                    state <= START;
-                else
-                    state <= IDLE;
-            end
-            START: begin
-                if (counter < CLKS_PER_BIT/2) begin
-                    counter <= counter + 1;
-                    state <= START;
-                end else begin
-                    counter <= 0;
-                    state <= SAMPLING;
-                end
-            end
-            SAMPLING: begin
-                if (counter < CLKS_PER_BIT) begin
-                    counter <= counter + 1;
-                    state <= SAMPLING;
-                end else begin
-                    if (bit_index < 8) begin
-                        data[bit_index] <= uart_rxd;
-                        bit_index <= bit_index + 1;
-                        state <= SAMPLING;
-                    end else begin
-                        bit_index <= 0;
-                        state <= IDLE;
-                    end
-                    counter <= 0;
-                end
-            end
-        endcase
-        prev <= uart_rxd;
+    always @(negedge rx) begin
+        count <= count + 1;
     end
+
+    assign {LED1, LED2, LED3, LED4} = ~count;
+
+    reg valid;
+    reg [7:0] data_byte;
+
+    uart_rx uart_rx_inst(
+        .clk(FPGA_CLK),
+        .uart_rxd(rx),
+        .data_valid(valid),
+        .data(data_byte));
+
+    svnseg_controller controller_inst(
+        .clk(FPGA_CLK),
+        .num3(4'h0),
+        .num2(4'h0),
+        .num1(data_byte[7:4]),
+        .num0(data_byte[3:0]),
+        .dig1(SVNSEG_DIG1),
+        .dig2(SVNSEG_DIG2),
+        .dig3(SVNSEG_DIG3),
+        .dig4(SVNSEG_DIG4),
+        .seg0(SVNSEG_SEG0),
+        .seg1(SVNSEG_SEG1),
+        .seg2(SVNSEG_SEG2),
+        .seg3(SVNSEG_SEG3),
+        .seg4(SVNSEG_SEG4),
+        .seg5(SVNSEG_SEG5),
+        .seg6(SVNSEG_SEG6),
+        .seg7(SVNSEG_SEG7));
 
 endmodule
