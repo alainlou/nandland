@@ -21,6 +21,7 @@ module uart_loopback(
 
     wire rx = !UART_RXD;
     wire tx;
+    assign UART_TXD = !tx;
     reg [3:0] count = 0;
 
     always @(negedge rx) begin
@@ -43,14 +44,20 @@ module uart_loopback(
         .data_valid(valid),
         .data(data_byte),
         .uart_txd(tx));
-    assign UART_TXD = !tx;
+
+    reg [3:0] top;
+    reg [3:0] bot;
+
+    always @(posedge valid) begin
+        {top, bot} <= data_byte;
+    end
 
     svnseg_controller controller_inst(
         .clk(FPGA_CLK),
         .num3(4'h0),
         .num2(4'h0),
-        .num1(data_byte[7:4]),
-        .num0(data_byte[3:0]),
+        .num1(top),
+        .num0(bot),
         .dig1(SVNSEG_DIG1),
         .dig2(SVNSEG_DIG2),
         .dig3(SVNSEG_DIG3),

@@ -9,7 +9,7 @@ module uart_rx(
     output reg [7:0] data);
 
     parameter CLKS_PER_BIT = 433; // 50 MHz clock, 115 200 baud rate, 433 is experimental
-    parameter IDLE = 0, START_BIT = 1, SAMPLING = 2;
+    parameter IDLE = 0, START_BIT = 1, SAMPLING = 2, STOP_BIT = 3, CLEANUP = 4;
 
     reg [2:0] state = IDLE;
     reg [3:0] bit_index = 0;
@@ -18,40 +18,48 @@ module uart_rx(
     always @(posedge clk) begin
         case (state)
             IDLE: begin
+                data_valid <= 1'b0;
                 if (uart_rxd == 1'b0) begin
                     state <= START_BIT;
-                end else
-                    state <= IDLE;
-                data_valid <= 1'b0;
+                end
             end
             START_BIT: begin
-                if (counter < CLKS_PER_BIT/2) begin
+                if (counter < CLKS_PER_BIT/2)
                     counter <= counter + 1;
-                    state <= START_BIT;
-                end else begin
+                else begin
+                    counter <= 0;
                     if (uart_rxd == 1'b0) begin
-                        counter <= 0;
                         state <= SAMPLING;
                     end else
                         state <= IDLE;
                 end
             end
             SAMPLING: begin
-                if (counter < CLKS_PER_BIT-1) begin
+                if (counter < CLKS_PER_BIT-1)
                     counter <= counter + 1;
-                    state <= SAMPLING;
-                end else begin
-                    if (bit_index < 8) begin
-                        data[bit_index] <= uart_rxd;
+                else begin
+                    data[bit_index] <= uart_rxd;
+                    counter <= 0;
+                    if (bit_index < 7) begin
                         bit_index <= bit_index + 1;
-                        state <= SAMPLING;
                     end else begin
                         bit_index <= 0;
-                        state <= IDLE;
-                        data_valid <= 1'b1;
+                        state <= STOP_BIT;
                     end
-                    counter <= 0;
                 end
+            end
+            STOP_BIT: begin
+                if (counter < CLKS_PER_BIT-1)
+                    counter <= counter + 1;
+                else begin
+                    counter <= 0;
+                    data_valid <= 1'b1;
+                    state <= CLEANUP;
+                end
+            end
+            CLEANUP: begin
+                data_valid <= 1'b0;
+                state <= IDLE;
             end
         endcase
     end

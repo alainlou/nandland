@@ -20,48 +20,43 @@ module uart_tx(
     always @(posedge clk) begin
         case (state)
             IDLE: begin
+                uart_txd <= 1'b1;
                 if (data_valid) begin
                     state <= START_BIT;
                     data_byte <= data;
-                end else
-                    state <= IDLE;
-                uart_txd <= 1'b1;
+                end
             end
             START_BIT: begin
+                uart_txd <= 1'b0;
                 if (counter < CLKS_PER_BIT-1) begin
                     counter <= counter + 1;
-                    state <= START_BIT;
                 end else begin
                     counter <= 0;
                     state <= TRANSMIT;
                 end
-                uart_txd <= 1'b0;
             end
             TRANSMIT: begin
                 if (counter < CLKS_PER_BIT-1) begin
                     counter <= counter + 1;
-                    state <= TRANSMIT;
                     uart_txd <= data_byte[bit_index];
                 end else begin
+                    counter <= 0;
                     if (bit_index < 7) begin
                         bit_index <= bit_index + 1;
-                        state <= TRANSMIT;
                     end else begin
                         bit_index <= 0;
                         state <= STOP_BIT;
                     end
-                    counter <= 0;
                 end
             end
             STOP_BIT: begin
+                uart_txd <= 1'b1;
                 if (counter < CLKS_PER_BIT-1) begin
                     counter <= counter + 1;
-                    state <= STOP_BIT;
                 end else begin
                     counter <= 0;
                     state <= IDLE;
                 end
-                uart_txd <= 1'b1;
             end
         endcase
     end
