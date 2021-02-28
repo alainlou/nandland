@@ -1,0 +1,3 @@
+- had to remove that negedge rx counter, then uart_rx module doesn't stall when I press and hold a key?
+- actually the stop state is 1.5 baud periods
+- technology mapping is hard?
