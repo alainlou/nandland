@@ -43,7 +43,7 @@ module uart_tx(
                     state <= TRANSMIT;
                     uart_txd <= data_byte[bit_index];
                 end else begin
-                    if (bit_index < 8) begin
+                    if (bit_index < 7) begin
                         bit_index <= bit_index + 1;
                         state <= TRANSMIT;
                     end else begin
