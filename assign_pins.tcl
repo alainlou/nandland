@@ -128,8 +128,6 @@ set_location_assignment PIN_72 -to SDRAM_CS
 set_location_assignment PIN_71 -to SDRAM_RAS
 set_location_assignment PIN_70 -to SDRAM_CAS
 set_location_assignment PIN_69 -to SDRAM_WE
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to UART_TXD
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to UART_RXD
 
 # Commit assignments
 export_assignments
