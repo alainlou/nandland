@@ -8,13 +8,20 @@ module vga
     output VGA_B
     );
 
+    wire vga_clk;
+
     reg [9:0] row_counter;
     reg [9:0] col_counter;
 
-
-    sync_pulse_gen inst
+    pll pll_inst
     (
-        .clk(FPGA_CLK),
+        .inclk0(FPGA_CLK),
+        .c0(vga_clk)
+    );
+
+    sync_pulse_gen pulse_gen_inst
+    (
+        .clk(vga_clk),
         .HSync(VGA_HSYNC),
         .VSync(VGA_VSYNC),
         .row(row_counter),
