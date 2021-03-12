@@ -7,7 +7,6 @@ module sync_pulse_gen
     output reg [9:0] col
     );
 
-
     parameter TOTAL_ROWS = 525, ACTIVE_ROWS = 480, V_FRONT_PORCH = 10, V_BACK_PORCH = 33;
     parameter TOTAL_COLS = 800, ACTIVE_COLS = 640, H_FRONT_PORCH = 16, H_BACK_PORCH = 48;
 
@@ -23,7 +22,7 @@ module sync_pulse_gen
         end
     end
 
-    assign HSync = col < ACTIVE_COLS + H_FRONT_PORCH || col >= TOTAL_ROWS - H_BACK_PORCH;
+    assign HSync = col < ACTIVE_COLS + H_FRONT_PORCH || col >= TOTAL_COLS - H_BACK_PORCH;
     assign VSync = row < ACTIVE_ROWS + V_FRONT_PORCH || col >= TOTAL_ROWS - V_BACK_PORCH;
 
 endmodule
