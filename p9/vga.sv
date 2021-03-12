@@ -9,6 +9,8 @@ module vga
     );
 
     wire vga_clk;
+    wire w_hsync;
+    wire w_vsync;
 
     reg [9:0] row_counter;
     reg [9:0] col_counter;
@@ -22,11 +24,14 @@ module vga
     sync_pulse_gen pulse_gen_inst
     (
         .clk(vga_clk),
-        .HSync(VGA_HSYNC),
-        .VSync(VGA_VSYNC),
+        .HSync(w_hsync),
+        .VSync(w_vsync),
         .row(row_counter),
         .col(col_counter)
     );
+
+    assign VGA_HSYNC = w_hsync;
+    assign VGA_VSYNC = w_vsync;
 
     assign VGA_R = 1'b1;
     assign VGA_G = 1'b1;
