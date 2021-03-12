@@ -23,6 +23,6 @@ module sync_pulse_gen
     end
 
     assign HSync = col < ACTIVE_COLS + H_FRONT_PORCH || col >= TOTAL_COLS - H_BACK_PORCH;
-    assign VSync = row < ACTIVE_ROWS + V_FRONT_PORCH || col >= TOTAL_ROWS - V_BACK_PORCH;
+    assign VSync = row < ACTIVE_ROWS + V_FRONT_PORCH || row >= TOTAL_ROWS - V_BACK_PORCH;
 
 endmodule
