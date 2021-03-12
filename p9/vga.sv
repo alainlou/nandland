@@ -33,8 +33,8 @@ module vga
     assign VGA_HSYNC = w_hsync;
     assign VGA_VSYNC = w_vsync;
 
-    assign VGA_R = 1'b1;
-    assign VGA_G = 1'b1;
-    assign VGA_B = 1'b1;
+    assign VGA_R = row_counter < 480 && col_counter < 640;
+    assign VGA_G = row_counter < 480 && col_counter < 640;
+    assign VGA_B = row_counter < 480 && col_counter < 640;
 
 endmodule
